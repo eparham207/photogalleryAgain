@@ -2,6 +2,8 @@ package com.parham.msu.photogalleryagain
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.parham.msu.photogalleryagain.api.GalleryItem
@@ -15,22 +17,27 @@ class PhotoViewHolder(
 
     }
 }
+class PhotoListAdapter :
+    PagingDataAdapter<GalleryItem, PhotoViewHolder>(REPO_COMPARATOR) {
 
-class PhotoListAdapter(
-    private val galleryItems: List<GalleryItem>
-) : RecyclerView.Adapter<PhotoViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): PhotoViewHolder {
+    override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
+        val item = getItem(position)
+        item?.let { holder.bind(it) }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListItemGalleryBinding.inflate(inflater, parent, false)
         return PhotoViewHolder(binding)
     }
-    override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
-        val item = galleryItems[position]
-        holder.bind(item)
-    }
 
-    override fun getItemCount() = galleryItems.size
+    companion object {
+        private val REPO_COMPARATOR = object : DiffUtil.ItemCallback<GalleryItem>() {
+            override fun areItemsTheSame(oldItem: GalleryItem, newItem: GalleryItem): Boolean =
+                oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: GalleryItem, newItem: GalleryItem): Boolean =
+                oldItem == newItem
+        }
+    }
 }
